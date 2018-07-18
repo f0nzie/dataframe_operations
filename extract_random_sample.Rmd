@@ -1,0 +1,68 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+source: https://stackoverflow.com/questions/19989355/extracting-a-random-sample-of-rows-in-a-data-frame-with-a-nested-conditional
+
+```{r}
+head(iris)
+```
+
+```{r}
+iris[sample(nrow(iris), 2), ]
+```
+
+### wrong extraction
+
+```{r}
+ iris[sample(nrow(iris)[iris$Species != "setosa"], 2), ]
+```
+
+### correct extraction with `which`
+
+```{r}
+iris[ sample( which( iris$Species != "setosa" ) , 2 ) , ]
+```
+
+## step by step
+
+```{r}
+library(magrittr)
+
+# mask <- iris$Species != "setosa"
+
+mask <- with(iris, Species != "setosa")
+
+indices_condition <- which( mask ) %>% 
+    print
+```
+
+
+```{r}
+num_samples <- 3
+
+sample_from_condition <- sample(indices_condition, num_samples) %>% 
+    print
+```
+
+```{r}
+iris[ sample_from_condition,  ]
+```
+
+
+# function
+
+```{r}
+extract_sample <- function(df, condition, num_samples) {
+    # eval(parse(text = condition)) convert the string to a logical condition
+    print(with(df, eval(parse(text = condition))))
+    mask <- with(df, eval(parse(text = condition)))
+    indices_condition <- which( mask )
+    sample_from_condition <- sample(indices_condition, num_samples)
+    df[sample_from_condition, ]
+}
+
+extract_sample(iris, condition = 'Species != "setosa"', 3)
+```
+

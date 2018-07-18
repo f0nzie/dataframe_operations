@@ -1,0 +1,138 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+
+get_folder_files_info <- function(path, pattern) {
+    df_folders <- file.info(list.dirs(path = path,
+                     full.names = TRUE,
+                     recursive = TRUE
+                     )) %>% 
+        tibble::rownames_to_column() %>% 
+        rename(fullname = rowname)
+        
+    
+    df_files <- file.info(list.files(path = path, 
+                         pattern = pattern, 
+                         full.names = TRUE,
+                         recursive = TRUE,
+                         include.dirs = TRUE,
+                         ignore.case = TRUE))
+    
+    df_files <- df_files %>% 
+        tibble::rownames_to_column() %>% 
+        rename(fullname = rowname) %>% 
+        mutate(basename = basename(fullname)) %>% 
+        mutate(noextension = tools::file_path_sans_ext(basename)) %>% 
+        mutate(file_ext = tolower(tools::file_ext(basename))) %>% 
+        select(fullname, basename, noextension, file_ext, everything())
+    
+    
+    invisible(list(df_folders = df_folders, df_files = df_files))
+}
+
+
+
+
+
+dir_files <- get_folder_files_info(
+      path = "D:/Dropbox/Petronas/Asset Modeling/Baronia", 
+      pattern = "\\.out$|\\.gap$|\\.vlp$|\\.mbi$")
+
+dir_files
+
+# 179 prosper
+```
+
+
+```{r}
+dir_files %>% 
+  .$df_files %>% 
+  filter(file_ext == "mbi") %>% 
+  nrow
+```
+
+
+```{r}
+dir_files %>% 
+    .$df_files %>% 
+        filter(file_ext == "out") %>% 
+        select(fullname) %>% 
+        .$fullname
+
+```
+
+
+```{r}
+
+folder_sel <- "D:/Dropbox/Petronas/Asset Modeling/Angsi"
+
+df_folders <- file.info(list.dirs(path = folder_sel,
+                     full.names = TRUE,
+                     recursive = TRUE
+                     ))
+df_folders
+```
+
+
+
+```{r}
+library(tidyverse)
+
+df_files <- file.info(list.files(path = folder_sel, 
+                     pattern="\\.out$", 
+                     full.names = TRUE,
+                     recursive = TRUE,
+                     include.dirs = TRUE,
+                     ignore.case = TRUE))
+
+df_files %>% 
+    tibble::rownames_to_column() %>% 
+    rename(fullname = rowname) %>% 
+    mutate(basename = basename(fullname)) %>% 
+    mutate(noextension = tools::file_path_sans_ext(basename)) %>% 
+    select(fullname, basename, noextension, everything()) %>% 
+    print
+```
+
+
+```{r}
+setwd(".")
+ 
+file_list <- list.files()
+ 
+for (file in file_list){
+       
+  # if the merged dataset doesn't exist, create it
+  if (!exists("dataset")){
+    dataset <- read.table(file, header=TRUE, sep="\t")
+  }
+   
+  # if the merged dataset does exist, append to it
+  if (exists("dataset")){
+    temp_dataset <-read.table(file, header=TRUE, sep="\t")
+    dataset<-rbind(dataset, temp_dataset)
+    rm(temp_dataset)
+  }
+ 
+}
+```
+
+```{r}
+# Put in your actual path where the text files are saved
+mypath = "E:/downloads_201807"
+setwd(mypath)
+
+# Create list of text files
+txt_files_ls = list.files(path=mypath, pattern="*.txt") 
+
+# Read the files in, assuming comma separator
+txt_files_df <- lapply(txt_files_ls, function(x) {read.table(file = x, header = T, sep =",")})
+
+# Combine them
+combined_df <- do.call("rbind", lapply(txt_files_df, as.data.frame)) 
+```
+
