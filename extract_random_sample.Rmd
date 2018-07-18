@@ -56,7 +56,7 @@ iris[ sample_from_condition,  ]
 ```{r}
 extract_sample <- function(df, condition, num_samples) {
     # eval(parse(text = condition)) convert the string to a logical condition
-    print(with(df, eval(parse(text = condition))))
+    # print(with(df, eval(parse(text = condition))))
     mask <- with(df, eval(parse(text = condition)))
     indices_condition <- which( mask )
     sample_from_condition <- sample(indices_condition, num_samples)
